@@ -11,10 +11,10 @@ EXTERNDEF bird:EECS205BITMAP
 EXTERNDEF pipe:EECS205BITMAP
 
 ;; Added structs:
-POSN STRUCT ;position on screen
+POSITION STRUCT ;position on screen
   x FXPT ?
   y FXPT ?
-POSN ENDS
+POSITION ENDS
 
 ;; Library Definitions
 MouseInfo STRUCT
