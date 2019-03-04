@@ -126,6 +126,7 @@ CheckIntersect PROC oneX:DWORD, oneY:DWORD, oneBitmap:PTR EECS205BITMAP, twoX:DW
   jge NoIntersection ;if bottom edge of one is greater than top edge of two, no intersection
 
 
+
 ;case 4: top edge of one intersects with bottom edge of two
   ;get top edge of box 1
   INVOKE getTopEdge, oneHeight, oneY
