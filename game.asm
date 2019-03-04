@@ -29,9 +29,12 @@ include keys.inc
 ;; Positions of sprites
 birdPos POSN <50,200>
 backgroundPos POSN <300,300>
-pipePos POSN <600,300>
+pipePos POSN <700,300>
+pipeSpawn POSN<700,300>
 
-birdSpeed DWORD 8
+birdSpeed FXPT 8
+pipeSpeed FXPT 10
+pipeSpeedInc FXPT 1
 
 
 .CODE
@@ -170,32 +173,51 @@ INVOKE BasicBlit, OFFSET pipe, pipePos.x, pipePos.y
 GameInit ENDP
 
 
-GamePlay PROC USES edx
+GamePlay PROC USES eax ecx
 
-  ;;mov edx, birdSpeed
+  mov ecx, birdSpeed
 
   INVOKE RedrawScreen
 
   cmp KeyPress, 20h ; Space key
-  je SPACE_PRESSED
-  add birdPos.y, 8
+  je MOVE_BIRD_UP
+
+  cmp MouseStatus.buttons, 01h
+  je MOVE_BIRD_UP
+
+  add birdPos.y, ecx
   jmp END_MOVE_BIRD
 
-SPACE_PRESSED:
-  sub birdPos.y, 8
+MOVE_BIRD_UP:
+  sub birdPos.y, ecx
 
 END_MOVE_BIRD:
 
-sub pipePos.x, 10
+mov ecx, pipeSpeed
+sub pipePos.x, ecx
 
 INVOKE CheckIntersect, birdPos.x, birdPos.y, OFFSET bird, pipePos.x, pipePos.y, OFFSET pipe
 cmp eax, 1
 jne NO_COLLISION
 
 COLLISION:
-  add pipePos.x, 600
+;; Change this to be gameover sometime in next Assignment
+  mov ecx, pipeSpawn.x
+  mov pipePos.x, ecx
 
 NO_COLLISION:
+
+cmp pipePos.x, 0
+jg PIPE_STILL_ON_SCREEN
+mov ecx, pipeSpawn.x
+mov pipePos.x, ecx
+mov ecx, pipeSpeedInc
+add pipeSpeed, ecx
+
+
+PIPE_STILL_ON_SCREEN:
+
+
 
 	ret         ;; Do not delete this line!!!
 GamePlay ENDP
