@@ -33,9 +33,13 @@ pipeSpeedInc FXPT 1
 
 ;; Positions of sprites
 birdPos POSITION <50,200>
-backgroundPos POSITION <300,300>
 pipePos POSITION <700,300>
-pipeSpawn POSITION <700,300>
+backOnePos POSITION <144,300>
+backTwoPos POSITION <432,300>
+backThreePos POSITION <576,300>
+
+backSpawn POSITION <576,300>
+pipeSpawn POSITION <720,300>
 
 
 .CODE
@@ -141,8 +145,13 @@ RedrawScreen PROC USES eax edi ecx
   REP STOSB
 
 ;; redraws bit maps in their new spots (since last update)
-  INVOKE BasicBlit, OFFSET bird, birdPos.x, birdPos.y
+
+  INVOKE BasicBlit, OFFSET background, backOnePos.x, backOnePos.y
+  INVOKE BasicBlit, OFFSET background, backTwoPos.x, backTwoPos.y
+  INVOKE BasicBlit, OFFSET background, backThreePos.x, backThreePos.y
   INVOKE BasicBlit, OFFSET pipe, pipePos.x, pipePos.y
+  INVOKE BasicBlit, OFFSET bird, birdPos.x, birdPos.y
+
 
   ret
 RedrawScreen ENDP
@@ -156,7 +165,7 @@ GameInit ENDP
 GamePlay PROC USES eax ecx
 
   mov ecx, birdSpeed
-
+  
   INVOKE RedrawScreen
 
 ;Check if mouse button 1 or space is pressed. If so, move bird higher
