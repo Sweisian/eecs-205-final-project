@@ -28,18 +28,24 @@ include keys.inc
 
 ;; Variables of game object speeds
 birdSpeed FXPT 8
+backSpeed FXPT 4
 pipeSpeed FXPT 10
 pipeSpeedInc FXPT 1
 
 ;; Positions of sprites
 birdPos POSITION <50,200>
 pipePos POSITION <700,300>
-backOnePos POSITION <144,300>
-backTwoPos POSITION <432,300>
-backThreePos POSITION <576,300>
+backOnePos POSITION <288,250>
+backTwoPos POSITION <576,250>
+backThreePos POSITION <864,250>
+backFourPos POSITION <1152,250>
 
-backSpawn POSITION <576,300>
+;; Positions of spawnpoints
+backSpawn POSITION <1152,250>
 pipeSpawn POSITION <720,300>
+
+;; pause state Variables
+isPaused DWORD -1
 
 
 .CODE
@@ -149,12 +155,54 @@ RedrawScreen PROC USES eax edi ecx
   INVOKE BasicBlit, OFFSET background, backOnePos.x, backOnePos.y
   INVOKE BasicBlit, OFFSET background, backTwoPos.x, backTwoPos.y
   INVOKE BasicBlit, OFFSET background, backThreePos.x, backThreePos.y
+  INVOKE BasicBlit, OFFSET background, backFourPos.x, backFourPos.y
   INVOKE BasicBlit, OFFSET pipe, pipePos.x, pipePos.y
   INVOKE BasicBlit, OFFSET bird, birdPos.x, birdPos.y
 
 
   ret
 RedrawScreen ENDP
+
+
+MoveBackground PROC USES ecx
+
+mov ecx, backSpeed
+
+sub backOnePos.x, ecx
+sub backTwoPos.x, ecx
+sub backThreePos.x, ecx
+sub backFourPos.x, ecx
+
+mov ecx, backSpawn.x
+
+cmp backOnePos.x, 0
+jg BACK_ONE_STILL_ON_SCREEN
+mov backOnePos.x, ecx
+
+BACK_ONE_STILL_ON_SCREEN:
+
+cmp backTwoPos.x, 0
+jg BACK_TWO_STILL_ON_SCREEN
+mov backTwoPos.x, ecx
+
+BACK_TWO_STILL_ON_SCREEN:
+
+cmp backThreePos.x, 0
+jg BACK_THREE_STILL_ON_SCREEN
+mov backThreePos.x, ecx
+
+BACK_THREE_STILL_ON_SCREEN:
+
+cmp backFourPos.x, 0
+jg BACK_FOUR_STILL_ON_SCREEN
+mov backFourPos.x, ecx
+
+BACK_FOUR_STILL_ON_SCREEN:
+
+
+  ret
+MoveBackground ENDP
+
 
 GameInit PROC
 
@@ -165,8 +213,23 @@ GameInit ENDP
 GamePlay PROC USES eax ecx
 
   mov ecx, birdSpeed
-  
+
+
   INVOKE RedrawScreen
+
+;; Check for pause!
+  cmp KeyDown, 50h ; "p" key
+  jne PAUSE_NOT_PRESSED
+  mov KeyDown, 0
+  neg isPaused
+
+PAUSE_NOT_PRESSED:
+
+  cmp isPaused, 1
+  je IS_PAUSED_TRUE
+
+
+  INVOKE MoveBackground
 
 ;Check if mouse button 1 or space is pressed. If so, move bird higher
 ;if nothing pressed, make bird fall
@@ -207,6 +270,9 @@ NO_COLLISION:
 
 
 PIPE_STILL_ON_SCREEN:
+
+
+IS_PAUSED_TRUE:
 
 	ret         ;; Do not delete this line!!!
 GamePlay ENDP
