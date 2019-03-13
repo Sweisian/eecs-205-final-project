@@ -15,10 +15,16 @@ include lines.inc
 include trig.inc
 include blit.inc
 include game.inc
+
+include \masm32\include\windows.inc
+include \masm32\include\winmm.inc
+includelib \masm32\lib\winmm.lib
+
 include \masm32\include\user32.inc
 includelib \masm32\lib\user32.lib
 include \masm32\include\masm32.inc
 includelib \masm32\lib\masm32.lib
+
 
 ;; Has keycodes
 include keys.inc
@@ -26,7 +32,7 @@ include keys.inc
 
 .DATA
 
-;; Variables of game object speeds
+;; Variables of game object speeds and physics values
 birdSpeed FXPT 8
 backSpeed FXPT 4
 pipeSpeed FXPT 10
@@ -46,6 +52,9 @@ pipeSpawn POSITION <720,300>
 
 ;; pause state Variables
 isPaused DWORD -1
+
+; Path to sound file
+SndPath BYTE "Flappy_Bird_Theme_Song_Loop.wav", 0
 
 
 .CODE
@@ -205,6 +214,8 @@ MoveBackground ENDP
 
 
 GameInit PROC
+
+  INVOKE PlaySound, offset SndPath, 0, SND_FILENAME OR SND_ASYNC OR SND_LOOP
 
 	ret         ;; Do not delete this line!!!
 GameInit ENDP
