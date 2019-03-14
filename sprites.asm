@@ -11,7 +11,7 @@ include game.inc
 
 .DATA
 
-bird EECS205BITMAP <34, 24, 255,, offset bird + sizeof bird>
+bird EECS205BITMAP <34, 24, 01ch,, offset bird + sizeof bird>
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,045h,045h,045h,045h
 	BYTE 045h,045h,045h,045h,045h,045h,045h,045h,000h,000h,000h,000h,000h,000h,000h,000h
 	BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,045h,045h
@@ -65,7 +65,7 @@ bird EECS205BITMAP <34, 24, 255,, offset bird + sizeof bird>
 	BYTE 045h,045h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
 
 
-	background EECS205BITMAP <288, 512, 255,, offset background + sizeof background>
+	background EECS205BITMAP <288, 512, 01ch,, offset background + sizeof background>
 		BYTE 05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh
 		BYTE 05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh
 		BYTE 05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh,05bh
@@ -10455,7 +10455,7 @@ bird EECS205BITMAP <34, 24, 255,, offset bird + sizeof bird>
 			BYTE 045h,045h,045h,045h,045h,045h,045h,045h,045h,045h,045h,0ffh
 
 
-			game_over EECS205BITMAP <660, 500, 255,, offset game_over + sizeof game_over>
+			game_over EECS205BITMAP <660, 500, 01ch,, offset game_over + sizeof game_over>
 				BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
 				BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h
 				BYTE 000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h,000h

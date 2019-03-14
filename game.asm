@@ -48,6 +48,7 @@ backOnePos POSITION <288,250>
 backTwoPos POSITION <576,250>
 backThreePos POSITION <864,250>
 backFourPos POSITION <1152,250>
+gameOverPos POSITION <640,230>
 
 ;; Positions of spawnpoints
 backSpawn POSITION <1152,250>
@@ -55,6 +56,7 @@ pipeSpawn POSITION <720,300>
 
 ;; pause state Variables
 isPaused DWORD -1
+isGameOver DWORD -1
 
 ; Path to sound file
 SndPath BYTE "Flappy_Bird_Theme_Song_Loop.wav", 0
@@ -240,7 +242,7 @@ GameInit ENDP
 
 GamePlay PROC USES eax ecx
 
-  INVOKE RedrawScreen
+
 
 ;; Check for pause!
   cmp KeyDown, 50h ; "p" key
@@ -251,7 +253,7 @@ GamePlay PROC USES eax ecx
 PAUSE_NOT_PRESSED:
 
   cmp isPaused, 1
-  je IS_PAUSED_TRUE
+  je END_GAME_LOOP
 
 
   INVOKE MoveBackground
@@ -280,11 +282,9 @@ END_MOVE_BIRD:
 
 COLLISION:
 ;; Change this to be gameover sometime in next Assignment
-  mov ecx, pipeSpawn.x
-  mov pipePos.x, ecx
+  mov isGameOver, 1
 
 NO_COLLISION:
-
   cmp pipePos.x, 0
   jg PIPE_STILL_ON_SCREEN
   mov ecx, pipeSpawn.x
@@ -309,8 +309,29 @@ END_PIPE_SPAWN:
 
 PIPE_STILL_ON_SCREEN:
 
+cmp birdPos.y, 0
+jl BIRD_OUT_OF_BOUNDS
 
-IS_PAUSED_TRUE:
+cmp birdPos.y, 480
+jg BIRD_OUT_OF_BOUNDS
+
+jmp BIRD_IN_BOUNDS
+
+BIRD_OUT_OF_BOUNDS:
+mov isGameOver, 1
+
+
+BIRD_IN_BOUNDS:
+
+INVOKE RedrawScreen
+
+cmp isGameOver, 1
+jne END_GAME_LOOP
+INVOKE BasicBlit, OFFSET game_over, gameOverPos.x, gameOverPos.y
+mov isPaused, 1
+
+
+END_GAME_LOOP:
 
 	ret         ;; Do not delete this line!!!
 GamePlay ENDP
