@@ -37,7 +37,6 @@ birdVelocityUp DWORD 8
 backSpeed FXPT 4
 pipeSpeed FXPT 10
 pipeSpeedInc FXPT 1
-
 birdVertVelocity DWORD 0
 birdGravity DWORD -1
 
@@ -157,6 +156,7 @@ CheckIntersect PROC USES edi edx ecx esi oneX:DWORD, oneY:DWORD, oneBitmap:PTR E
     ret         ;; Do not delete this line!!!
 CheckIntersect ENDP
 
+; clears and redraws sprites on the screen. Called once per update. Does not handle game over image
 RedrawScreen PROC USES eax edi ecx
   ;clears screen
   mov eax, 0
@@ -177,7 +177,7 @@ RedrawScreen PROC USES eax edi ecx
   ret
 RedrawScreen ENDP
 
-
+; Returns the displacement from the current bird y value
 CalcBirdDisplacement PROC USES ecx
 
   mov ecx, birdVertVelocity
@@ -188,7 +188,7 @@ CalcBirdDisplacement PROC USES ecx
   ret
 CalcBirdDisplacement ENDP
 
-
+; Moves the background images. If any of them go off the screen, it moves them them to the spawn point off the right side of the screen
 MoveBackground PROC USES ecx
 
 mov ecx, backSpeed
@@ -229,6 +229,7 @@ BACK_FOUR_STILL_ON_SCREEN:
 MoveBackground ENDP
 
 
+; Kicks off the sound loop and starts the random number generation
 GameInit PROC
 
   INVOKE PlaySound, offset SndPath, 0, SND_FILENAME OR SND_ASYNC OR SND_LOOP
@@ -243,7 +244,6 @@ GameInit ENDP
 GamePlay PROC USES eax ecx
 
 
-
 ;; Check for pause!
   cmp KeyDown, 50h ; "p" key
   jne PAUSE_NOT_PRESSED
@@ -251,7 +251,6 @@ GamePlay PROC USES eax ecx
   neg isPaused
 
 PAUSE_NOT_PRESSED:
-
   cmp isPaused, 1
   je END_GAME_LOOP
 
@@ -269,7 +268,6 @@ PAUSE_NOT_PRESSED:
 MOVE_BIRD:
   INVOKE CalcBirdDisplacement
   sub birdPos.y, eax
-
 
 END_MOVE_BIRD:
   mov ecx, pipeSpeed
@@ -292,6 +290,8 @@ NO_COLLISION:
   mov ecx, pipeSpeedInc
   add pipeSpeed, ecx
 
+
+; Randomly decide which side of screen to spawn pipe and how far to stick it out
   INVOKE nrandom, 2
   cmp eax, 0
   jne SPAWN_DOWN_PIPE
@@ -309,6 +309,7 @@ END_PIPE_SPAWN:
 
 PIPE_STILL_ON_SCREEN:
 
+; check if the bird is out of bounds. If so, end game
 cmp birdPos.y, 0
 jl BIRD_OUT_OF_BOUNDS
 
@@ -325,11 +326,11 @@ BIRD_IN_BOUNDS:
 
 INVOKE RedrawScreen
 
+;Check for gameover state. If so, draw the game over image
 cmp isGameOver, 1
 jne END_GAME_LOOP
 INVOKE BasicBlit, OFFSET game_over, gameOverPos.x, gameOverPos.y
 mov isPaused, 1
-
 
 END_GAME_LOOP:
 
