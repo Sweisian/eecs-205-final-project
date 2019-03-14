@@ -33,14 +33,17 @@ include keys.inc
 .DATA
 
 ;; Variables of game object speeds and physics values
-birdSpeed FXPT 8
+birdVelocityUp DWORD 8
 backSpeed FXPT 4
 pipeSpeed FXPT 10
 pipeSpeedInc FXPT 1
 
+birdVertVelocity DWORD 0
+birdGravity DWORD -1
+
 ;; Positions of sprites
 birdPos POSITION <50,200>
-pipePos POSITION <700,300>
+pipePos POSITION <700,100>
 backOnePos POSITION <288,250>
 backTwoPos POSITION <576,250>
 backThreePos POSITION <864,250>
@@ -173,6 +176,17 @@ RedrawScreen PROC USES eax edi ecx
 RedrawScreen ENDP
 
 
+CalcBirdDisplacement PROC USES ecx
+
+  mov ecx, birdVertVelocity
+  add ecx, birdGravity
+  mov birdVertVelocity, ecx
+  mov eax, birdVertVelocity
+
+  ret
+CalcBirdDisplacement ENDP
+
+
 MoveBackground PROC USES ecx
 
 mov ecx, backSpeed
@@ -216,15 +230,15 @@ MoveBackground ENDP
 GameInit PROC
 
   INVOKE PlaySound, offset SndPath, 0, SND_FILENAME OR SND_ASYNC OR SND_LOOP
+  rdtsc
+  INVOKE nseed, eax
 
-	ret         ;; Do not delete this line!!!
+	ret         ;; Do not delete this line!!! GameInit ENDP
+
 GameInit ENDP
 
 
 GamePlay PROC USES eax ecx
-
-  mov ecx, birdSpeed
-
 
   INVOKE RedrawScreen
 
@@ -242,19 +256,18 @@ PAUSE_NOT_PRESSED:
 
   INVOKE MoveBackground
 
-;Check if mouse button 1 or space is pressed. If so, move bird higher
-;if nothing pressed, make bird fall
-  cmp KeyPress, 20h ; Space key
-  je MOVE_BIRD_UP
 
-  cmp MouseStatus.buttons, 01h ;Gets mouse one
-  je MOVE_BIRD_UP
+;Check if space is pressed. If so, add vertical veloctiy to bird
+  mov ecx, birdVelocityUp
+  cmp KeyDown, 20h ; Space key
+  jne MOVE_BIRD
+  mov KeyDown, 0
+  mov birdVertVelocity, ecx
 
-  add birdPos.y, ecx
-  jmp END_MOVE_BIRD
+MOVE_BIRD:
+  INVOKE CalcBirdDisplacement
+  sub birdPos.y, eax
 
-MOVE_BIRD_UP:
-  sub birdPos.y, ecx
 
 END_MOVE_BIRD:
   mov ecx, pipeSpeed
@@ -279,6 +292,20 @@ NO_COLLISION:
   mov ecx, pipeSpeedInc
   add pipeSpeed, ecx
 
+  INVOKE nrandom, 2
+  cmp eax, 0
+  jne SPAWN_DOWN_PIPE
+SPAWN_UP_PIPE:
+  INVOKE nrandom, 200
+  add eax, 300
+  mov pipePos.y, eax
+  jmp END_PIPE_SPAWN
+
+SPAWN_DOWN_PIPE:
+  INVOKE nrandom, 130
+  mov pipePos.y, eax
+
+END_PIPE_SPAWN:
 
 PIPE_STILL_ON_SCREEN:
 
